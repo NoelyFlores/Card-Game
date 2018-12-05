@@ -1,6 +1,7 @@
 <template>
     <v-card>
-        <v-card-text>Mierda {{number}}</v-card-text>        
+        <v-card-text>Mierda {{number}}</v-card-text>
+				      
         <div id="app">
   <v-app id="inspire">
     <v-layout justify-center>
@@ -12,8 +13,8 @@
           >
             <v-layout row wrap>
               <v-flex
-                 v-for="(item, index) in aleatorio" :key="index"								
-								 @click="acierta(items[item].num,items[item].type, item)"
+                 v-for="(item, index) in items" :key="index"								
+								 @click="acierta(item.number,item.type, item.state,index)"
               >
                 <v-card>
                   <v-img
@@ -22,13 +23,14 @@
 										
                   >
                     <v-flex xs12 sm12>
-                      <v-card class="container-vue" v-bind:class="{'atras': !items[item].state}" >
+                      <v-card class="container-vue" v-bind:class="{'atras': !items[index].state}" >
+                        {{index}}
                         <v-container
                         fluid
                         grid-list-md												                  
                         >
-                        <v-layout row wrap class="layout-vue" ><!--  v-if="items[item].state" -->
-                          <v-icon v-for="i in items[item].num" :key="i"  large color="red darken-2"  class="icon">{{items[item].type}}</v-icon>
+                        <v-layout row wrap class="layout-vue" ><!--   -->
+                          <v-icon v-for="i in item.number" :key="i" v-if="item.state" large color="red darken-2"  class="icon">{{item.type}}</v-icon>
                         </v-layout>
                        </v-container>
                       </v-card>
@@ -53,19 +55,10 @@ export default {
     return {
       number: 0,
       min: 0,
-      max: 8,
-      numCard: 8,
-      items: [
-        { type: "favorite", num: 1, state: false},
-        { type: "toys", num: 2, state: false },
-        { type: "favorite", num: 2, state: false },
-        { type: "toys", num: 2, state: false },
-        { type: "favorite", num: 1, state: false },
-        { type: "toys", num: 10, state: false },
-        { type: "favorite", num: 2, state: false },
-        { type: "toys", num: 10, state: false }
-      ],
-      aleatorio: [],
+			max: 8,
+			cantCard: 10,
+			typeCard: ['favorite', 'toys', 'edit','home'],
+      items: [],
 			acierto: false,
 			valueOne: 0,
 			count: 0,
@@ -75,10 +68,25 @@ export default {
     };
   },
   created() {
-    this.aleatorio = this.aleatorioUnico(this.items.length);
-    console.log(this.aleatorio);
-  },
+		//this.items = this.generarItem()
+		//this.aleatorio = this.aleatorioUnico(this.items.length);
+		
+    const data= JSON.stringify(this.generarCartasAleatorias(), null, this.cantCard)
+    this.items = JSON.parse(data) 
+		console.log(this.items)
+	},
   methods: {
+		// genero las cartas de 4 tipos hasta el numero 10
+		generarItem(){
+			const temp = []
+				this.typeCard.forEach(element => {
+				for (let i = 0; i < 10; i++) {
+					 temp.push({type: element, number: i+1, state: false})
+				}
+			});
+			return temp
+		},
+		//genero numeros aleatorios :(
     aleatorioUnico(cantidad) {
       let array = [];
       for (let i = 0; i < cantidad; i++) {
@@ -88,18 +96,42 @@ export default {
         const medio = i; // indice del array actual
         const fin = array.slice(posición); // array del lado i
         array = inicio.concat(medio).concat(fin);
-      }
+			}
       return array;
-    },
-    acierta(value, valType, item){	
-			this.items[item].state = true
-			this.count++
-			const cardAcertada = this.cardState
-			this.cardState = item
-			const primerAcierto = this.valueOne
-			this.valueOne = value
-			const type = this.valueType
-			this.valueType = valType
+		},
+		// modifico el items con los numeros aleatorios
+		// tengo items y numers aleatorios
+		generarCartasAleatorias(){
+			//voy a reccorrer los numeros aleatorios solo hasta la mitad del numero de cartas solicitadas
+			const listCard = this.generarItem()//length 40
+			const cantTiros = this.aleatorioUnico(listCard.length).slice(0, this.cantCard/2)// length num escogido
+			const doblelistCard = cantTiros.concat(cantTiros)// 12
+			const aleatorioListCartas = this.aleatorioUnico(doblelistCard.length) //posicion
+			aleatorioListCartas.map((element, index) => {
+				 aleatorioListCartas[index] = doblelistCard[element]
+			});
+			aleatorioListCartas.map((position, index) => {			
+				aleatorioListCartas[index]=listCard[position]
+			})
+			return aleatorioListCartas
+		},
+    acierta(value, valType,st, index){
+      
+      console.log(this.items[index], index)
+      console.log(this.items)
+      
+      if(this.items[index].state !== true){
+        this.items[index].state = true
+        this.count++
+        const cardAcertada = this.cardState
+        this.cardState = index
+
+        const primerAcierto = this.valueOne
+        this.valueOne = value
+
+        const type = this.valueType
+        this.valueType = valType
+
 			if(this.count === 2){
 					if(primerAcierto === this.valueOne && type === this.valueType){											
 						console.log('acertaste')
@@ -108,12 +140,13 @@ export default {
 							const self = this;
 							setTimeout(function () {
 								console.log(self.cardState, cardAcertada)
-								self.items[item].state = false
+								self.items[index].state = false
 								self.items[cardAcertada].state = false
 							},500)						
 					}
 					this.count = 0
 					console.log(this.valueOne)
+			}	
 				}
 			/*no crean que dire lo mismo que todos -que he cometido errores y no me arrepiento, pues 
 			yo digo que durante toda mi puta vida me arrepentire de haber perdido mi tiempo contigo y haber dejado pasar oportunidades
