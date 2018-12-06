@@ -1,11 +1,10 @@
 <template>
     <v-card>
-        <v-card-text>Nivel {{number}}</v-card-text>
-				      
+        <v-card-text class="description">Nivel {{number}}</v-card-text>	
         <div id="app">
           <v-app id="inspire">
             <v-layout justify-center>
-              <v-flex xs12 sm12>  
+              <v-flex xs12 sm12 class="content">  
                 <v-card class="container-card-vue">
                   <v-container
                     fluid
@@ -49,16 +48,42 @@
                 <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
                   <v-btn slot="activator" color="primary" dark>Open Dialog</v-btn>
                   <v-card class="container-modal">
-                    <v-btn icon dark color="red" @click="dialog = false">
-                      <v-icon>close</v-icon>
-                    </v-btn>
-                    <v-divider></v-divider>
-                    <v-btn icon dark color="blue" @click="dialog = false">
-                      <v-icon>close</v-icon>
-                    </v-btn>
+                      <v-card
+                          class="mx-auto container-title"
+                          max-width="600"
+                        >
+                          <v-card-title class="title font-weight-regular justify-space-between">
+                          </v-card-title>
+                      
+                          <v-window v-model="step">
+                      
+                            <v-window-item :value="1">
+                              <div class="pa-3 text-xs-center">
+                                <v-img
+                                  class="mb-3"
+                                  contain
+                                  height="250"
+                                  src="http://subirimagen.me/uploads/20181123161725.png"
+                                ></v-img>
+                                <h3 class="title font-weight-light mb-2">Memoria de cartas</h3>
+                                <span class="caption grey--text">Atrevete si puedes</span>
+                              </div>
+                            </v-window-item>
+                          </v-window>
+                      
+                        </v-card>
+                        <v-flex class="text-xs-center">
+                          <v-btn
+                              color="primary"
+                              @click="dialog = false"
+                            >
+                              Jugar
+                            </v-btn>
+                        </v-flex>                    
                   </v-card>
                 </v-dialog>
               </v-layout>
+
             </v-app>
           </div>
 </div>
@@ -75,7 +100,9 @@ export default {
       items: [],
       temp: [],
       dialog: true,
-      nivel: []
+      nivel: [],
+      success: 0,
+      step: 1
     };
   },
   created() {
@@ -121,14 +148,14 @@ export default {
         this.items[index].state = true
         this.temp.push({numero: value, figura: valType, posicion: index})  // array de de 2 aciertos a comparar   
         if(this.temp.length === 2){
-          this.timeotu()
+          this.showTime()
           .then(() => {
             this.temp = []
             })
           }	
 			}		
     },
-    timeotu(){
+    showTime(){
       return new Promise((resolve, reject) => {
         if(this.temp[0].numero === this.temp[1].numero && this.temp[0].figura === this.temp[1].figura) {
           const listIcons = document.getElementsByClassName(`successful${this.temp[0].posicion}`)
@@ -137,8 +164,13 @@ export default {
             for (let index = 0; index <= 10; index++) {// numero maximo de figuras en la carta
               listIcons[index]?listIcons[index].style.display = 'none': ''              
               listIcons2[index]?listIcons2[index].style.display = 'none': ''
-            }
-					},200)          
+            }            
+          },200)
+          this.success++ // acumulo los aciertos
+          console.log(this.success)
+          if(this.success === this.numberLetters/2){
+            this.dialog = true  
+          }  
           resolve()
         } else{
           const self = this;
@@ -154,6 +186,9 @@ export default {
 };
 </script>
 <style scoped>
+content{
+  background: #064206;
+}
 .card-box,
 .card-conten {
   display: flex;
@@ -194,6 +229,7 @@ export default {
 .container-card-vue {
   width: 735px;
   margin: auto;
+  background: transparent;
 }
 .numero{
   color: #17171b;
@@ -204,11 +240,31 @@ export default {
   position: absolute;
 }
 .container-modal{
-  background: url(https://images.pexels.com/photos/297507/pexels-photo-297507.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260) no-repeat;
+  background: url(http://3.bp.blogspot.com/-__D3Dw1tujQ/Td483KDwdWI/AAAAAAAAAOk/A-AOBAdhBCo/s1600/watermelon.png) no-repeat;
   height: 100vh;
   box-sizing: border-box;
   background-position: center;
   background-size: cover;
+}
+.font-weight-light{
+    font-weight: 800!important;
+    color: #FFEB3B;
+    font-size: 80px !important;
+    text-shadow: 4px 1px 0px #FF9800;
+}
+.container-title{
+  background: transparent;
+  box-shadow: none !important;
+}
+/* .theme--light.v-card{
+    background: transparent;
+    box-shadow: none; 
+} */
+.theme--light.application, .description{
+  background: #064206; 
+}
+.description{
+  color: yellow;
 }
 </style>
 
