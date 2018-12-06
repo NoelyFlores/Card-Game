@@ -219,6 +219,10 @@ content{
 .description{
   color: yellow;
 }
-
+@media (max-width: 750px) {
+  .container-card-vue {
+    width: 100%;
+  }
+}
 </style>
 
