@@ -11,7 +11,7 @@ const levels = [
         img:'http://subirimagen.me/uploads/20181123161541.png',
         descripcion: 'Nivel 1',
         txtButton: 'Jugar',
-        mensaje:'HUMM!! increible, lo estas muy bien',
+        mensaje:'HUMM!! increible, lo estas haciendo muy bien',
         add: 4
 
     },

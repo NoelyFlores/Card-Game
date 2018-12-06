@@ -91,7 +91,7 @@ export default {
     text-shadow: 4px 1px 0px #FF9800;
 }
 .container-title{
-  background: transparent;
+  background: transparent !important;
   box-shadow: none !important;
 }
 /* .theme--light.v-card{
