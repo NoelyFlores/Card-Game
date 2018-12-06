@@ -1,8 +1,8 @@
 <template>
-    <v-card>
-        <v-card-text class="description">Nivel {{number}}</v-card-text>	
-        <div id="app">
-          <v-app id="inspire">
+    <v-card>        	
+        <div id="app">          
+          <v-app id="inspire" v-if="!notification">
+            <v-card-text class="description">Nivel {{nivel}}</v-card-text>
             <v-layout justify-center>
               <v-flex xs12 sm12 class="content">  
                 <v-card class="container-card-vue">
@@ -42,72 +42,34 @@
               </v-flex>
             </v-layout>
           </v-app>
-          <div id="app">
-            <v-app id="inspire">
-              <v-layout row justify-center>
-                <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-                  <v-btn slot="activator" color="primary" dark>Open Dialog</v-btn>
-                  <v-card class="container-modal">
-                      <v-card
-                          class="mx-auto container-title"
-                          max-width="600"
-                        >
-                          <v-card-title class="title font-weight-regular justify-space-between">
-                          </v-card-title>
-                      
-                          <v-window v-model="step">
-                      
-                            <v-window-item :value="1">
-                              <div class="pa-3 text-xs-center">
-                                <v-img
-                                  class="mb-3"
-                                  contain
-                                  height="250"
-                                  src="http://subirimagen.me/uploads/20181123161725.png"
-                                ></v-img>
-                                <h3 class="title font-weight-light mb-2">Memoria de cartas</h3>
-                                <span class="caption grey--text">Atrevete si puedes</span>
-                              </div>
-                            </v-window-item>
-                          </v-window>
-                      
-                        </v-card>
-                        <v-flex class="text-xs-center">
-                          <v-btn
-                              color="primary"
-                              @click="dialog = false"
-                            >
-                              Jugar
-                            </v-btn>
-                        </v-flex>                    
-                  </v-card>
-                </v-dialog>
-              </v-layout>
-
-            </v-app>
-          </div>
-</div>
+          <notification-component v-else :level="nivel"></notification-component>
+        </div>
     </v-card>
 </template>
 <script>
+import {EventBus} from '@/plugins/EventBus.js'
+import notification from '@/components/notification'
 export default {
   name: "",
   data() {
     return {
       number: 0,
-			numberLetters: 8,
-			typeLetter: ['favorite', 'toys', 'edit','home'],
+			numberLetters: 4,
+			typeLetter: ['favorite', 'toys', 'sentiment_satisfied_alt','star'],
       items: [],
-      temp: [],
-      dialog: true,
-      nivel: [],
+      temp: [],      
+      nivel: 0,
       success: 0,
-      step: 1
+      notification: true   
     };
   },
   created() {
-		const data= JSON.stringify(this.generateRandomLetters(), null, this.numberLetters)
-    this.items = JSON.parse(data)
+    EventBus.$on('show-levelOne', value => {
+      this.notification = false
+      this.numberLetters = this.numberLetters + 4
+      const data= JSON.stringify(this.generateRandomLetters(), null, this.numberLetters)
+      this.items = JSON.parse(data)
+    })
 	},
   methods: {
 		// genero las cartas de 4 tipos hasta el numero 10
@@ -167,9 +129,10 @@ export default {
             }            
           },200)
           this.success++ // acumulo los aciertos
-          console.log(this.success)
-          if(this.success === this.numberLetters/2){
-            this.dialog = true  
+          if(this.success === (this.numberLetters)/2){
+            this.success = 0
+            this.nivel++
+            this.notification = true            
           }  
           resolve()
         } else{
@@ -182,8 +145,11 @@ export default {
         }        
       })
     }
+  },
+  components:{
+    'notification-component': notification
   }
-};
+}
 </script>
 <style scoped>
 content{
@@ -239,19 +205,6 @@ content{
   font-weight: 800;
   position: absolute;
 }
-.container-modal{
-  background: url(http://3.bp.blogspot.com/-__D3Dw1tujQ/Td483KDwdWI/AAAAAAAAAOk/A-AOBAdhBCo/s1600/watermelon.png) no-repeat;
-  height: 100vh;
-  box-sizing: border-box;
-  background-position: center;
-  background-size: cover;
-}
-.font-weight-light{
-    font-weight: 800!important;
-    color: #FFEB3B;
-    font-size: 80px !important;
-    text-shadow: 4px 1px 0px #FF9800;
-}
 .container-title{
   background: transparent;
   box-shadow: none !important;
@@ -266,5 +219,6 @@ content{
 .description{
   color: yellow;
 }
+
 </style>
 
