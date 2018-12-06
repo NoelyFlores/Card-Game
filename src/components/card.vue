@@ -195,7 +195,7 @@ content{
 .container-card-vue {
   width: 735px;
   margin: auto;
-  background: transparent;
+  background: transparent !important;
 }
 .numero{
   color: #17171b;

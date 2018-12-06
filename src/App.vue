@@ -61,7 +61,7 @@ export default {
 </script>
 <style scoped>
   .navbar{
-    color: #fff
+    color: #fff !important
   }
 </style>
 
